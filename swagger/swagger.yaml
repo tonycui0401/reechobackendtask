@@ -1,0 +1,151 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: Authentication
+  description: Here you can find all specs of ours APIs.
+externalDocs:
+  description: "Find out more about our developer's portal"
+basePath: /v1
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+x-a127-config: {}
+x-a127-services: {}
+#security:
+#  - apiKeyHeader: []
+definitions:
+  AuthResponse:
+    type: object
+    properties:
+      userType:
+          $ref: "#/definitions/UserType"
+      username: #uid
+        type: string
+        description: LDAP of the employee
+      employeeID: #employeeNumber 
+        type: string
+        description: ID of the employee
+      employeeType: #employeeType
+        $ref: "#/definitions/EmployeeType"
+      fullName: #cn
+        type: string
+        description:  Full Name of the user
+      givenName: #givenName
+        type: string
+        description: Given Name of the user
+      surname: #sn
+        type: string
+        description: Surname of the user
+      title: #title
+        type: string
+        description: Mission designated to the user
+      titleCode: #titleCode
+        type: string
+        description: Code of mission designated to the user
+      locationName: #businesCategory
+        type: string
+        description: Site where the user works
+      locationCode: #privBusinessCategoryCode
+         type: string
+         description: Code from site where the user works
+      department: #departmentNumber
+        type: string
+        description: Department of the user
+      contractStartDate: #privContractStartDate
+        type: string
+        format: date
+        description: Contract start date of the user
+      email: #mail
+        type: string
+        description: Email of the user
+      telephoneNumber: #telephoneNumber
+        type: string
+        description: Telephone number of the user´s department
+      mobile: #mobile
+        type: string
+        description: Mobile phone number of the user
+      manager: #manager
+        type: string
+        description: Manager´s distinguish name from LDAP
+      o: #o
+        type: string
+        description: Brands abbreviation. E.g. LM for Leroy Merlin
+      ou: #ou
+        type: string
+        description: Organization unit
+      birthdate: #birthdate
+        type: string
+        format: date
+        description: Birthdate from user
+      createdBy: #privCreatedBy
+        type: string
+        description: Distinguish name from user that created the registry in LDAP
+      modifiedBy: #privModifiedBy
+        type: string
+        description: Distinguish name from user that modified the registry in LDAP
+      jpegPhoto: #jpegPhoto
+        type: string
+        format: byte
+        description: Binary Base64 represeting JPEG photo. 
+  ErrorResponse:
+    type: string
+  DefaultResponse:
+    type: string
+
+paths:
+  /auth/login:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: "authentication"
+    x-a127-apply: {}
+    post:
+      summary: Try to login
+      description: Try to login with credencials based on username/password. This API will return all "habitant" information if login were successful.
+      # used as the method name of the controller
+      operationId: login
+      consumes: 
+        - "application/x-www-form-urlencoded"
+      tags: 
+      - Auth
+      parameters:
+        - name: username
+          in: formData
+          description: Username to login.
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: Password to login.
+          required: true
+          type: string
+          format: password
+        - name: userType
+          in: formData
+          required: true
+          default: customer
+          <<: *UserType
+      responses:
+        "200":
+          description: Success. If there are attributes with empty values they won´t be returned
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/AuthResponse"
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "501":
+          description: Not Implemented
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+tags:
+  - name: Auth
+    description: Authentication and authorization related APIs.
+<br />
